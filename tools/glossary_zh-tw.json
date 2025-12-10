@@ -1,0 +1,18 @@
+{
+  "state machine": "狀態機",
+  "actor": "Actor",
+  "transition": "轉換",
+  "context": "上下文",
+  "event": "事件",
+  "action": "動作",
+  "guard": "守衛",
+  "service": "服務",
+  "invoke": "調用",
+  "spawn": "生成",
+  "interpret": "解釋器",
+  "machine": "機器",
+  "state": "狀態",
+  "final state": "最終狀態",
+  "parallel state": "並行狀態",
+  "history state": "歷史狀態"
+}
