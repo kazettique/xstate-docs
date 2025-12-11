@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "repository": "https://github.com/statelyai/docs",
   "scripts": {
-    "dev": "docusaurus start",
+    "dev": "docusaurus start --locale zh-Hant",
     "build": "docusaurus build",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
-    "zh-tw": "docusaurus start --locale zh-Hant",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,md,mdx,json}'",
     "deepl:advanced": "node tools/translate-advanced.js",
     "deepl:batch": "node tools/translate-batch.js",
