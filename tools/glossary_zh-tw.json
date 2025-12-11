@@ -147,5 +147,6 @@
   "vue composition": "vue 組合函式",
   "waitfor": "等待",
   "wildcard event": "萬用事件",
-  "complexity": "複雜度"
+  "complexity": "複雜度",
+  "visibility": "權限"
 }
