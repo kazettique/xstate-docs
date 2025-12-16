@@ -312,6 +312,7 @@ async function quickTest() {
         entries: {
           'state machine': '狀態機',
           actor: 'Actor',
+          code: '程式碼55566',
         },
       }),
     );
@@ -321,8 +322,8 @@ async function quickTest() {
     // 使用術語表翻譯
     console.log('🔄 翻譯測試文字...');
     const result = await translator.translateText(
-      'A state machine with an actor',
-      null,
+      'A state machine with an actor with writing any code',
+      'en',
       'zh-Hant',
       { glossary: glossary },
     );
