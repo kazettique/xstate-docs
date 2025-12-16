@@ -55,7 +55,7 @@ If you want to make contribute to the project, please let me know.
 - [ ] setup.mdx
 - [x] url.mdx
 - [ ] colors.mdx
-- [ ] image.mdx
+- [x] image.mdx
 - [ ] sign-up.mdx
 - [ ] user-preferences.mdx
 - [ ] context.mdx
