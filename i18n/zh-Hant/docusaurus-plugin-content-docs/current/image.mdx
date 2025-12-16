@@ -1,0 +1,59 @@
+---
+title: 透過網址分享狀態機圖像
+---
+
+您可以在任何支援圖片的地方分享狀態機圖像。可透過網址實現即時更新功能，使狀態機永遠保持在最新狀態。狀態機圖像在寫文件時相當實用，例如 GitHub pull request。
+
+下方圖片採用複製圖片網址嵌入。請嘗試在文件頂部工具列切換淺色與深色模式，圖片亦會同步變換色彩主題。
+
+<p>
+  <ThemedImage
+    alt="State machine for the Copy image URL flow. An initial state of Viewing machine which transitions to Left drawer open via an event of Open left drawer. The use … icon event transitions from left drawer open to Machine options menu open."
+    sources={{
+      light:
+        'https://stately.ai/registry/machines/1b050e43-c8a5-4e28-b881-71eadcc5b8a1.light.png',
+      dark: 'https://stately.ai/registry/machines/1b050e43-c8a5-4e28-b881-71eadcc5b8a1.dark.png',
+    }}
+  />
+</p>
+
+您的狀態機影像僅在以下情況可用：
+
+- 專案存取權限設為 **public** 或 **unlisted**
+
+private 狀態機無法使用狀態機影像功能。
+
+閱讀 [如何變更專案存取權限](projects.mdx#change-a-projects-visibility)。
+
+:::tip
+
+您亦可透過 [嵌入狀態機](embed.mdx) 作為一個唯讀版本的 Stately Studio。
+
+:::
+
+## 複製圖片網址
+
+請點擊狀態機名稱旁的 <MoreHorizontal size={18} /> 三點圖示，並選擇 <LinkIcon size={16} /> **複製圖片網址** 選項。
+
+## 色彩主題
+
+預設圖片色彩主題將與您選擇的 Stately Studio 色彩主題一致。若需強制指定色彩主題，請在網址中添加 `.light.png` 或 `.dark.png`。
+
+## 範例
+
+以下範例展示圖片網址的應用方式。
+
+### Markdown
+
+```md
+![State machine for the copy image URL flow in light mode.](https://stately.ai/registry/machines/1b050e43-c8a5-4e28-b881-71eadcc5b8a1.light.png)
+```
+
+### HTML
+
+```html
+<img
+  src="https://stately.ai/registry/machines/1b050e43-c8a5-4e28-b881-71eadcc5b8a1.dark.png"
+  alt="State machine for the copy image URL flow in dark mode."
+/>
+```
