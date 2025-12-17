@@ -50,7 +50,7 @@ If you want to make contribute to the project, please let me know.
 - [ ] guards.mdx
 - [ ] quick-start.mdx
 - [ ] upgrade.mdx
-- [ ] cheatsheet.mdx
+- [x] cheatsheet.mdx
 - [ ] history-states.mdx
 - [ ] setup.mdx
 - [x] url.mdx
