@@ -18,7 +18,7 @@ If you want to make contribute to the project, please let me know.
 - [ ] figma.mdx
 - [ ] observable-actors.mdx
 - [ ] tags.mdx
-- [ ] actor-model.mdx
+- [x] actor-model.mdx
 - [ ] final-states.mdx
 - [ ] output.mdx
 - [ ] teams.mdx
