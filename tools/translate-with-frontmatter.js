@@ -778,7 +778,7 @@ async function batchTranslate(
 // ============================================
 // 使用範例
 // ============================================
-const TARGET_FILE = 'cheatsheet';
+const TARGET_FILE = 'xstate';
 
 const EXTENSION = '.mdx';
 const SOURCE_DIRECTORY = 'docs/';
