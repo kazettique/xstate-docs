@@ -1,0 +1,181 @@
+---
+title: XState
+slug: '/xstate'
+---
+
+XState 是 JavaScript 與 TypeScript 應用程式的狀態管理與協調解決方案。
+
+它使用 [事件驅動](transitions.mdx) 程式設計、[狀態機、狀態圖](state-machines-and-statecharts.mdx) 以及 [演員模型](actor-model.mdx) 以可預測、穩健且可視化的方式處理複雜度的邏輯。XState 透過允許開發者將邏輯建模為演員和狀態機，提供了管理應用程式和工作流程狀態的強大且靈活的方式。它能高度整合至 React、Vue、Svelte 及其他框架，並可用於前端、後端或可執行 JavaScript 的任何環境。
+
+:::tip
+
+想了解更多關於狀態機的資訊嗎？[請閱讀我們的介紹](state-machines-and-statecharts.mdx)。
+
+:::
+
+## 安裝指南
+
+XState 在 [npm](https://www.npmjs.com/package/xstate) 上提供：
+
+<Tabs>
+<TabItem value="npm" label="npm">
+
+```bash
+npm install xstate
+```
+
+</TabItem>
+
+<TabItem value="pnpm" label="pnpm">
+
+```bash
+pnpm install xstate
+```
+
+</TabItem>
+
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add xstate
+```
+
+</TabItem>
+</Tabs>
+
+## 建立簡易狀態機
+
+```js
+import { createMachine, assign, createActor } from 'xstate';
+
+const countMachine = createMachine({
+  context: {
+    count: 0,
+  },
+  on: {
+    INC: {
+      actions: assign({
+        count: ({ context }) => context.count + 1,
+      }),
+    },
+    DEC: {
+      actions: assign({
+        count: ({ context }) => context.count - 1,
+      }),
+    },
+    SET: {
+      actions: assign({
+        count: ({ event }) => event.value,
+      }),
+    },
+  },
+});
+
+const countActor = createActor(countMachine).start();
+
+countActor.subscribe((state) => {
+  console.log(state.context.count);
+});
+
+countActor.send({ type: 'INC' });
+// logs 1
+countActor.send({ type: 'DEC' });
+// logs 0
+countActor.send({ type: 'SET', value: 10 });
+// logs 10
+```
+
+<EmbedMachine
+  embedURL="https://stately.ai/registry/editor/embed/c447d996-cef1-421d-a422-8be695668764?machineId=89e9d8f1-73d6-4dee-92bc-1796270e2f50&mode=design"
+  title="Simple machine"
+/>
+
+[查看更多作速查表的範例](cheatsheet.mdx)。
+
+## 建立更複雜的狀態機
+
+```js
+import { createMachine, assign, createActor } from 'xstate';
+
+const textMachine = createMachine({
+  context: {
+    committedValue: '',
+    value: '',
+  },
+  initial: 'reading',
+  states: {
+    reading: {
+      on: {
+        'text.edit': { target: 'editing' },
+      },
+    },
+    editing: {
+      on: {
+        'text.change': {
+          actions: assign({
+            value: ({ event }) => event.value,
+          }),
+        },
+        'text.commit': {
+          actions: assign({
+            committedValue: ({ context }) => context.value,
+          }),
+          target: 'reading',
+        },
+        'text.cancel': {
+          actions: assign({
+            value: ({ context }) => context.committedValue,
+          }),
+          target: 'reading',
+        },
+      },
+    },
+  },
+});
+
+const textActor = createActor(textMachine).start();
+
+textActor.subscribe((state) => {
+  console.log(state.context.value);
+});
+
+textActor.send({ type: 'text.edit' });
+// logs ''
+textActor.send({ type: 'text.change', value: 'Hello' });
+// logs 'Hello'
+textActor.send({ type: 'text.commit' });
+// logs 'Hello'
+textActor.send({ type: 'text.edit' });
+// logs 'Hello'
+textActor.send({ type: 'text.change', value: 'Hello world' });
+// logs 'Hello world'
+textActor.send({ type: 'text.cancel' });
+// logs 'Hello'
+```
+
+<EmbedMachine
+  embedURL="https://stately.ai/registry/editor/embed/c447d996-cef1-421d-a422-8be695668764?mode=design&machineId=fa84c2d4-7c42-4f67-8bde-66f972133703"
+  title="more complex machine"
+/>
+
+## 下載 XState VS Code 插件
+
+:::warningxstate
+
+XState VS Code 擴充功能目前尚未完整支援 XState v5。
+
+:::
+
+- [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=statelyai.stately-vscode)
+- [Open VSX Registry](https://open-vsx.org/extension/statelyai/stately-vscode)
+
+[閱讀更多關於我們的開發者工具](developer-tools.mdx)。
+
+## 套件
+
+- 🤖 [xstate](https://github.com/statelyai/xstate/)：有限狀態機與狀態圖核心函式庫 + 演員
+- 📉 [@xstate/graph](https://github.com/statelyai/xstate/tree/main/packages/xstate-graph)：Xstate 的圖形遍歷工具
+- ⚛️ [@xstate/react](https://github.com/statelyai/xstate/tree/main/packages/xstate-react)：在 React 應用程式中使用 XState 的 React 鉤子函式和工具
+- 💚 [@xstate/vue](https://github.com/statelyai/xstate/tree/main/packages/xstate-vue)：在 Vue 應用程式中使用 XState 的 Vue 組合函式與工具
+- 🎷 [@xstate/svelte](https://github.com/statelyai/xstate/tree/main/packages/xstate-svelte)：在 Svelte 應用程式中使用 XState 的 Svelte 工具
+- ✅ [@xstate/test](https://github.com/statelyai/xstate/tree/main/packages/xstate-test)：基於模型的測試工具 (使用 XState) 用於測試任何軟體

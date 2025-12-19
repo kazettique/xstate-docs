@@ -109,6 +109,7 @@ If you want to make contribute to the project, please let me know.
 - [ ] eventless-transitions.mdx
 - [ ] machine-restore.mdx
 - [ ] studio-team-plan.mdx
-- [ ] xstate.mdxexamples.mdx
+- [x] xstate.mdx
+- [ ] examples.mdx
 - [ ] machines.mdx
 - [ ] studio.mdx
