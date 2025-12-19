@@ -1,0 +1,277 @@
+---
+title: 何謂狀態機和狀態圖？
+---
+
+狀態機幫助我們建立當事件發生時，流程如何從一狀態進入另一狀態的邏輯。
+
+狀態機在軟體開發中非常有用，因為它們可以幫助我們捕捉所有狀態、事件和它們之間的狀態移轉。使用狀態機可以讓我們更容易找到不可能的狀態和發現不理想的狀態移轉。
+
+State machines model your application logic. Below is the logic for a video player. When the video is Played, it is opened into fullscreen mode. When the video is stopped, it closes out of fullscreen mode. When the video player is in fullscreen mode, it can be _Playing_ or _Paused_.
+狀態機為您的應用程式邏輯建模。以下是影片播放器的邏輯。播放影片時，播放器會進入全螢幕模式。當影片停止時，則會退出全螢幕。當播放器處於全螢幕模式時，它可以是 _Playing_ 或 _Paused_。
+
+<EmbedMachine
+  name="Video player"
+  embedURL="https://stately.ai/registry/editor/embed/e13bef2b-bb13-4465-96ac-0bc25340688e?machineId=dbcfca1c-075d-4cd6-a865-efcbd7be1544"
+/>
+
+## 狀態機的優勢
+
+- **簡單易懂。** 狀態機視覺化且簡單易懂。它們是與您的團隊和利害關係人溝通的絕佳方式。
+- **測試簡單。**狀態機是確定性的，這表示它們的測試很簡單。您可以測試所有可能的狀態以及狀態之間的移轉。
+- **實作簡單。**狀態機在任何程式語言中都很容易實作。您可以使用函式庫或自行撰寫。
+- **維護簡單。**狀態機維護簡單，因為它們很容易理解、測試和實作。
+- 它們為複雜度的使用者介面建模和管理應用程式狀態提供了清晰簡潔的方式。
+- 狀態機提供結構化的方式來管理狀態移轉和處理事件，有助於降低複雜度和改善可維護性。
+- 它們還可以在應用程式不同部分之間實踐明確的關注點分離，來防止臭蟲並改善程式碼品質。
+- 此外，狀態機的可維護性很高，並提供了使複雜前端流程更容易管理的解決方案。
+
+### 後端的部分
+
+- 狀態機可簡化複雜工作流程的設計與實作，有助於降低複雜度並提昇可維護性。https://developers.redhat.com/articles/2021/11/23/how-design-state-machines-microservices
+
+## 何謂狀態圖（statechart）？
+
+狀態圖將傳統的有限狀態機擴充為更複雜度的邏輯模型。
+
+狀態圖是使用方塊和箭頭的狀態機視覺化插件，很像流程圖和序列圖。狀態圖增加了一般狀態機所沒有的額外功能，包括 [階層](parent-states.mdx)、[並發](parallel-states.mdx) 和 [通訊](actor-model.mdx)。
+
+當您在 [Stately Studio](https://stately.ai/editor) 中製作一個狀態機時，它同時也是一個狀態圖！
+
+:::studio
+
+在 stately Studio 中，我們把狀態機和狀態圖都稱為**狀態機**。
+
+:::
+
+## 狀態（States）
+
+狀態描述了狀態機的狀態或模式，可以簡單到 _Asleep_ 和 _Awake_。狀態機一次只能處於一種狀態。
+
+{/* no alt because the image is already described in the surrounding text */}
+
+<p>
+  <ThemedImage
+    alt="Dog state machine with asleep and awake states. There’s a warning on the awake state because there’s no transitions which means the awake state cannot be reached."
+    sources={{
+      light:
+        'https://stately.ai/registry/machines/469f2d59-551f-43cb-bfc0-e6f3ea0f9d87.light.png',
+      dark: 'https://stately.ai/registry/machines/469f2d59-551f-43cb-bfc0-e6f3ea0f9d87.dark.png',
+    }}
+  />
+</p>
+
+[在 stately Studio 中查看狗的狀態機](https://stately.ai/registry/editor/1f84ff0d-fe41-4a92-ad5c-fadfa8b37ffb?machineId=469f2d59-551f-43cb-bfc0-e6f3ea0f9d87).
+
+狗總是**睡著**或**醒著**。狗不可能同時睡著和醒著，也不可能既不睡也不醒。只有這兩種狀態，也就是明確地限制在*有限*數量的狀態。
+
+狀態機啟動時，會先進入**初始狀態（initial state）**。一個狀態機只能有一個最高層級的初始狀態；如果有複數個，狀態機就不知道該從哪裡開始！
+
+在這個狀態圖中描述了遛狗的過程，初始狀態是**等待**遛狗。
+
+- [閱讀關於狀態的更多細節](states.mdx).
+- [閱讀更多關於有限狀態的細節](finite-states.mdx).
+- [閱讀更多關於初始狀態的細節](initial-states.mdx).
+
+### XState 中的狀態
+
+在 XState 狀態機中的 `states` 屬性定義狀態（state）。
+
+```ts
+import { createMachine } from 'xstate';
+
+const dogMachine = createMachine({
+  id: 'dog',
+  initial: 'asleep',
+  // highlight-start
+  states: {
+    asleep: {
+      // ...
+    },
+    awake: {
+      // ...
+    },
+    //...
+  },
+  // highlight-end
+});
+```
+
+:::studio
+
+### Stately Studio 中的狀態
+
+圓角矩形方塊是狀態。[閱讀如何在 stately Studio 中建立狀態](states.mdx)。
+
+:::
+
+## 狀態移轉與事件
+
+狗透過透過**狀態移轉（transitions）** 於 **asleep** 和 **awake** 之間轉換。事件（events）會導致狀態移轉；當事件觸發時，狀態機就會移轉至下一個狀態。狗透過 **wake up** 和 **fall asleep** 事件，在 **asleep** 和 **awake** 之間轉換。
+
+狀態移轉具有 「確定性」；任何狀態與事件的組合總是指向相同的下一個狀態。狗從來不會 **wake up** 變成 **asleep**，或 **fall asleep** 變成 **awake**。
+
+{/* no alt because the image is already described in the surrounding text */}
+
+<p>
+  <ThemedImage
+    alt=""
+    sources={{
+      light:
+        'https://stately.ai/registry/machines/e48e774e-c31f-4e51-a934-6b795c12b2b9.light.png',
+      dark: 'https://stately.ai/registry/machines/e48e774e-c31f-4e51-a934-6b795c12b2b9.dark.png',
+    }}
+  />
+</p>
+
+[在 stately Studio 中檢視具有事件和狀態移轉的狗狀態機](https://stately.ai/registry/editor/1f84ff0d-fe41-4a92-ad5c-fadfa8b37ffb?machineId=e48e774e-c31f-4e51-a934-6b795c12b2b9).
+
+有了兩個有限的狀態和狀態移轉，這隻小狗就是一個有限狀態機（_Finite State Machine_）。狀態機描述事物的狀態以及這些狀態之間的移轉，之所以稱為有限狀態機，是因為它有有限數量的狀態。（有時候，喜歡行話的人會簡稱為 FSM）。
+
+[閱讀更多有關狀態移轉與事件的細節](transitions.mdx).
+
+### XState 中的事件與狀態移轉
+
+在 XState 狀態機中，事件和狀態移轉定義在 `on` 屬性內。
+
+```ts
+import { createMachine } from 'xstate';
+
+const dogMachine = createMachine({
+  id: 'dog',
+  initial: 'asleep',
+  states: {
+    asleep: {
+      // highlight-start
+      on: {
+        'wakes up': 'awake',
+      },
+      // highlight-end
+    },
+    awake: {
+      // highlight-start
+      on: {
+        'falls asleep': 'asleep',
+      },
+      // highlight-end
+    },
+    //...
+  },
+});
+```
+
+:::studio
+
+### Stately Studio 中的事件與狀態移轉
+
+在 stately Studio 中，箭頭是狀態移轉，箭頭線上的圓角矩形是事件。每個狀態移轉都有一個**來源（source）**狀態和**目標（目標）**狀態，**來源**狀態在移轉之前，**目標**狀態在移轉之後。狀態移轉的箭頭從來源狀態開始，指向目標狀態。[閱讀如何在 stately Studio 中建立事件和狀態移轉](editor-states-and-transitions.mdx)。
+
+:::
+
+## 最終狀態（Final State）
+
+大多數有狀態的流程都會有一個*最終狀態（final state）*，也就是流程結束時的最後狀態。最後的狀態會在狀態的圓角矩形框上以雙邊框表示。
+
+在遛狗的狀態圖中，最終狀態是 **walk complete**。
+
+<p>
+  <ThemedImage
+    alt="Dog walking statechart showing waiting state transitioning through the leave home event to the on a walk state, then transitioning through the arrive home event to the final state of walk complete."
+    sources={{
+      light:
+        'https://stately.ai/registry/machines/988d8d05-86ba-422a-8a28-d13cbf54d481.light.png',
+      dark: 'https://stately.ai/registry/machines/988d8d05-86ba-422a-8a28-d13cbf54d481.dark.png',
+    }}
+  />
+</p>
+
+[檢視 Stately Studio 的遛狗狀態機](https://stately.ai/registry/editor/1f84ff0d-fe41-4a92-ad5c-fadfa8b37ffb?machineId=988d8d05-86ba-422a-8a28-d13cbf54d481).
+
+[閱讀更多關於最終狀態的細節](final-states.mdx)
+
+## 父狀態（Parent States）
+
+父狀態是可以包含更多狀態的狀態，也稱為子狀態。這些子狀態只有在父狀態發生時才會發生。在 **on a walk** 狀態內，可能有 **walking** 和 **running** 的子狀態。
+
+父狀態的符號是有標籤的矩形方塊，作為子狀態的容器。父狀態有時也稱為*複合狀態（compound states）*。
+
+{/* no alt because the image is already described in the surrounding text */}
+
+<p>
+  <ThemedImage
+    alt=""
+    sources={{
+      light:
+        'https://stately.ai/registry/machines/aa8a9c5d-8fd9-4e47-b71a-bda219cda066.light.png',
+      dark: 'https://stately.ai/registry/machines/aa8a9c5d-8fd9-4e47-b71a-bda219cda066.dark.png',
+    }}
+  />
+</p>
+
+[在檢視 Stately Studio 遛狗狀態機](https://stately.ai/registry/editor/1f84ff0d-fe41-4a92-ad5c-fadfa8b37ffb?machineId=aa8a9c5d-8fd9-4e47-b71a-bda219cda066).
+
+父狀態也應該指定哪個子狀態為初始狀態。在父狀態 **on a walk** 中，初始狀態是 **walking**。
+
+父狀態和子狀態使狀態圖能夠處理比一般狀態機更為複雜的情境。
+
+[閱讀更多關於父狀態的細節](parent-states.mdx).
+
+## 原子狀態（Atomic States）
+
+原子狀態是指沒有任何子狀態的狀態。**Waiting**, **walk complete**, **walking** 和 **running** 皆為原子狀態。
+
+## 平行狀態（Parallel States）
+
+平行狀態是指所有子狀態（也稱為區域，regions）同時處於活躍狀態。各區域在平行狀態容器內以虛線分隔。
+
+Inside the **on a walk** parallel state, there could be two regions. One region contains the dog’s activity child states of **walking** and **running**, and the other region containing the dog’s tail states of **wagging** and **not wagging**. The dog can walk and wag its tail or run and wag its tail, it can also do both of these activities without wagging its tail.
+在 ** on a walk** 平行狀態中，可能有兩個區域。一個區域包含狗的活動子狀態 **walking** 和 **running**，另一個區域包含狗的尾巴狀態 **wagging** 和 ** not wagging**。狗可以邊走邊搖尾或邊跑邊搖尾，它也可以同時進行這兩種活動而不搖尾。
+
+{/* no alt because the image is already described in the surrounding text */}
+
+<p>
+  <ThemedImage
+    alt=""
+    sources={{
+      light:
+        'https://stately.ai/registry/machines/1f43dcd3-255c-40bf-b6b0-eba9a2bccb23.light.png',
+      dark: 'https://stately.ai/registry/machines/1f43dcd3-255c-40bf-b6b0-eba9a2bccb23.dark.png',
+    }}
+  />
+</p>
+
+[在 Stately Studio 檢視遛狗狀態機](https://stately.ai/registry/editor/1f84ff0d-fe41-4a92-ad5c-fadfa8b37ffb?machineId=1f43dcd3-255c-40bf-b6b0-eba9a2bccb23).
+
+Both regions should also specify which child state is the initial state. In our **tail** region, the initial state is **not wagging**.
+這兩個區域也捷應該指定哪個子狀態為初始狀態。在我們的 **tail** 區域中，初始狀態是 **not wagging**。
+
+[閱讀更多關於平行狀態的細節](parallel-states.mdx).
+
+## 自我狀態移轉（Self-transition）
+
+自我移轉（self-transition）是指事件發生，但移轉回到同一狀態。移轉箭頭離開後又重新進入相同狀態。
+
+描述自我狀態移轉的有用方法是在過程中「做某事，而不是去某處」。
+
+在**狗乞討**的過程中，會有一個 **begging** 狀態與一個 **get treat** 事件。而對於愛吃的狗狗，無論經過多少次 **gets treat** 事件，狗狗都會回到它的 **begging** 狀態。
+
+{/* no alt because the image is already described in the surrounding text */}
+
+<p style={{ 'max-width': '500px' }}>
+  <ThemedImage
+    alt=""
+    sources={{
+      light:
+        'https://stately.ai/registry/machines/933419cb-dd94-453c-a2b1-de2290c0a5a5.light.png',
+      dark: 'https://stately.ai/registry/machines/933419cb-dd94-453c-a2b1-de2290c0a5a5.dark.png',
+    }}
+  />
+</p>
+
+[在 Stately Studio 中查看狗狗乞討狀態機](https://stately.ai/registry/editor/17986605-400c-4c00-8b33-47e3ecca478b?machineId=933419cb-dd94-453c-a2b1-de2290c0a5a5).
+
+[閱讀更多關於自我狀態移轉的細節](/docs/transitions/#self-transitions)
+
+## 下一步？
+
+Now you know enough to get started in the [Stately Studio](https://stately.ai/editor?source=docs). Get an [overview of Stately Studio and its features](studio.mdx), or [continue to learn about XState](xstate.mdx).
+現在您知道的足夠多了，可以開始使用 [Stately Studio](https://stately.ai/editor?source=docs)了。閱讀 [Stately Studio 及其功能概觀](studio.mdx)，或 [繼續了解 XState](xstate.mdx)。

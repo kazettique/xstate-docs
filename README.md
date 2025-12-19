@@ -10,6 +10,8 @@ If you want to make contribute to the project, please let me know.
 
 ### Tradition Chinese
 
+Progress: 7 / 115
+
 - [x] about.mdx
 - [ ] export-as-code.mdx
 - [ ] migration.mdx
@@ -80,7 +82,7 @@ If you want to make contribute to the project, please let me know.
 - [ ] xstate-immer.mdx
 - [ ] discover.mdx
 - [ ] inspection.mdx
-- [ ] state-machines-and-statecharts.mdx
+- [x] state-machines-and-statecharts.mdx
 - [ ] xstate-react.mdx
 - [ ] editor-actions-and-actors.mdx
 - [ ] inspector.mdx
