@@ -8,9 +8,9 @@ If you want to make contribute to the project, please let me know.
 
 ## Translation Progress
 
-### Tradition Chinese
+### Traditional Chinese
 
-Progress: 7 / 115
+Progress: 8 / 115
 
 - [x] about.mdx
 - [ ] export-as-code.mdx
@@ -50,7 +50,7 @@ Progress: 7 / 115
 - [ ] typescript.mdx
 - [ ] canvas-view-controls.mdx
 - [ ] guards.mdx
-- [ ] quick-start.mdx
+- [x] quick-start.mdx
 - [ ] upgrade.mdx
 - [x] cheatsheet.mdx
 - [ ] history-states.mdx
