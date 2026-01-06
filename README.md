@@ -89,7 +89,7 @@ Progress: 8 / 103
 - [ ] stately-sky-getting-started.mdx
 - [ ] xstate-store-v2.mdx
 - [ ] editor-context-and-meta.mdx
-- [ ] installation.mdx
+- [x] installation.mdx
 - [ ] states.mdx
 - [ ] xstate-store.mdx
 - [ ] editor-states-and-transitions.mdx
