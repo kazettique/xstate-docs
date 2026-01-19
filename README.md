@@ -10,7 +10,7 @@ If you want to make contribute to the project, please let me know.
 
 ### Traditional Chinese
 
-Progress: 8 / 103
+Progress: 9 / 103
 
 - [x] about.mdx
 - [ ] export-as-code.mdx
@@ -112,6 +112,6 @@ Progress: 8 / 103
 - [ ] machine-restore.mdx
 - [ ] studio-team-plan.mdx
 - [x] xstate.mdx
-- [ ] examples.mdx
+- [x] examples.mdx
 - [ ] machines.mdx
 - [ ] studio.mdx
