@@ -10,7 +10,7 @@ If you want to make contribute to the project, please let me know.
 
 ### Traditional Chinese
 
-Progress: 9 / 103
+Progress: 10 / 103
 
 - [x] about.mdx
 - [ ] export-as-code.mdx
@@ -27,7 +27,7 @@ Progress: 9 / 103
 - [ ] actors.mdx
 - [ ] finite-states.mdx
 - [ ] parallel-states.mdx
-- [ ] templates.mdx
+- [x] templates.mdx
 - [ ] agents.mdx
 - [ ] function-actors.mdx
 - [ ] parent-states.mdx
