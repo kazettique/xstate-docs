@@ -1,0 +1,87 @@
+---
+title: 詞彙表
+---
+
+本詞彙表是以字母排序列出狀態圖和狀態機中最常見詞彙。
+
+:::tip
+
+想要瞭解這些概念的更詳細資訊嗎？[請參閱狀態機和狀態圖的介紹](state-machines-and-statecharts.mdx)。
+
+:::
+
+## 行動（Actions）
+
+一個[行動](actions.mdx) 是在狀態移轉期間執行的作用。行動是「觸發即忘的作用」；一旦狀態機出發了行動，它就會繼續前進，並且忘記這個行動。
+
+## 演員（Actors）
+
+當執行狀態機時，它會變成一個[演員](actors.mdx)，這是一個可以接收事件、發送事件，並根據接收到的事件改變自己的行為的執行緒，而這些行為可以改變演員之外的環境。
+
+## 移轉後（After transitions）
+
+請參閱[狀態延遲移轉](/#delayed-transitions)。
+
+## 必然移轉（Always transitions）
+
+請參閱[無事件的狀態移轉](/#eventless-transitions)。
+
+## 複合狀態（Compound states）
+
+請參閱[父子狀態](/#parent-and-child-states)。
+
+## 脈絡（Context）
+
+[脈絡](context.mdx)是狀態機演員儲存脈絡資料的地方。
+
+## 延遲移轉（Delayed transitions）
+
+[延遲轉換](delayed-transitions.mdx)是在指定時間間隔後才會發生的狀態移轉。若在定時器結束前有其他事件發生，則狀態移轉不會完成。延遲移轉標示為「之後」，通常稱為「之後」移轉。
+
+## 無狀態移轉（Eventless transitions）
+
+[無狀態移轉](eventless-transitions.mdx)是無事件的狀態移轉。這些移轉會在其狀態中的任何轉換啟用後*必然*發生。毋需任何事件來觸發狀態移轉。無事件移轉標示為「always（必然）」，也常被稱為「always transitions」。
+
+## 終末狀態（Final state）
+
+當一個狀態機到達[終末狀態](final-states.mdx)，它就無法再接收任何事件，任何在它內部執行的東西將會取消和清除。一個狀態機可擁有多個終末狀態，也可以沒有終末狀態。
+
+## 條件守衛（Guards）
+
+[條件守衛](guards.mdx)是狀態機在觸發事件時所檢查的條件。如果該條件為真值，則依循該移轉至下一個狀態。如果條件為偽值，則狀態機依循其他條件至下一個狀態。任何狀態移轉都可以是擁有條件守衛的狀態移轉。
+
+## 歷史狀態（History state）
+
+[歷史狀態](history-states.mdx)會將父狀態回傳到最近活躍的子狀態。
+
+## 初始狀態（Initial state）
+
+狀態機啟動時，會先進入[**初始狀態**](initial-states.mdx)。一個狀態機只能有一個頂層的初始狀態。
+
+## 被呼叫演員（Invoked actors）
+
+一個[被呼叫的演員](actors.mdx)是一個可以執行自己的行動並與狀態機通訊的演員。這些被呼叫的演員在狀態中啟動，並在狀態結束時停止。
+
+## 平行狀態（Parallel states）
+
+[平行狀態](parallel-states.mdx)是一個分隔成多個子狀態區域的狀態，每個區域同時作動。
+
+## 父與子狀態（Parent and child states）
+
+狀態可以包含更多狀態，稱為[子狀態](parent-states.mdx)。這些子狀態只有在父狀態啟動時才會啟動。子狀態巢狀在父狀態內，而父狀態也又稱為複合狀態。
+
+## 狀態（States）
+
+一個[狀態](states.mdx)描述了狀態機的狀態。狀態可以是簡單的 _active_ 和 _inactive_。這些狀態是有限的；狀態機只能在預先定義的狀態中移動，且同一時間只能處於一種狀態。
+
+## 狀態圖（Statecharts）
+
+[狀態圖](state-machines-and-statecharts.mdx)是狀態機的視覺化插件，讓您可以建立更複雜的邏輯模型，包括層級、並發和通訊。
+
+## 狀態機（State machines）
+
+[狀態機](state-machines-and-statecharts.mdx) 是一種模型，其描述當事件觸發時狀態是如何移轉的。狀態機致力於使建立可靠的軟體，因為它們可以防止不可能的狀態和非預期的狀態移轉。當執行狀態機時，它會變成一個[演員](actors.mdx)。
+
+## 狀態移轉與事件（Transitions and events）
+
+狀態機透過[移轉](transitions.mdx)從一個狀態移轉到另一個狀態。移轉是經由事件觸發的；當事件觸發時，狀態機就會移轉到下一個狀態。狀態移轉是「確定性的」；每個狀態和事件的組合總是指向相同的下一個狀態。

@@ -10,7 +10,7 @@ If you want to make contribute to the project, please let me know.
 
 ### Traditional Chinese
 
-Progress: 10 / 103
+Progress: 11 / 103
 
 - [x] about.mdx
 - [ ] export-as-code.mdx
@@ -45,7 +45,7 @@ Progress: 10 / 103
 - [ ] promise-actors.mdx
 - [ ] typegen.mdx
 - [ ] callback-actors.mdx
-- [ ] glossary.mdx
+- [x] glossary.mdx
 - [ ] pure-transitions.mdx
 - [ ] typescript.mdx
 - [ ] canvas-view-controls.mdx
