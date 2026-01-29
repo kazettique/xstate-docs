@@ -1,0 +1,610 @@
+---
+title: '狀態機'
+---
+
+[狀態機](state-machines-and-statecharts.mdx)是描述某樣東西的行為模型，例如一位[演員](actors.mdx)。[有限狀態](finite-states.mdx)狀態機描述當[事件](transitions.mdx)觸發時，演員的狀態如何移轉到另一個狀態。
+
+:::tip
+
+請閱讀我們的[狀態機和狀態圖簡介](state-machines-and-statecharts.mdx)！
+
+:::
+
+## 狀態機的優勢
+
+狀態機有助於建立可靠、穩健的軟體。[閱讀更多關於狀態機的好處](state-machines-and-statecharts.mdx#benefits-of-state-machines)。
+
+## 建立狀態機
+
+在 [XState](xstate.mdx) 中，使用 `createMachine(config)` 函式建立狀態機：
+
+```ts
+import { createMachine } from 'xstate';
+
+const feedbackMachine = createMachine({
+  id: 'feedback',
+  initial: 'question',
+  states: {
+    question: {
+      on: {
+        'feedback.good': {
+          target: 'thanks',
+        },
+      },
+    },
+    thanks: {
+      // ...
+    },
+    // ...
+  },
+});
+```
+
+在此範例中，狀態機有兩個狀態：「發問（`question`）」和「感謝（`thanks`）」。當發送 `feedback.good` 事件至狀態機時，`question` 狀態會移轉至 `thanks` 狀態：
+
+```ts
+const feedbackActor = createActor(feedbackMachine);
+
+feedbackActor.subscribe((state) => {
+  console.log(state.value);
+});
+
+feedbackActor.start();
+// logs 'question'
+
+feedbackActor.send({ type: 'feedback.good' });
+// logs 'thanks'
+```
+
+## 從狀態機創造演員
+
+狀態機包含演員的邏輯。一位[演員](actors.mdx)是狀態機的運作實例（instance）；換句話說，它是邏輯被狀態機所描述的實體（entity）。可以從同一狀態機中建立多位演員，這些演員都會展現出相同的行為（對接收事件後的反應），但它們彼此獨立並有各自的狀態。
+
+欲建立演員，請使用 `createActor()` 函式：
+
+```ts
+import { createActor } from 'xstate';
+
+const feedbackActor = createActor(feedbackMachine);
+
+feedbackActor.subscribe((state) => {
+  console.log(state.value);
+});
+
+feedbackActor.start();
+// logs 'question'
+```
+
+您也可以[從其他類型的邏輯](/docs/actors/#actor-logic)建立演員，例如：[函式](/docs/actors/#fromtransition)、[promise](/docs/actors/#frompromise) 以及 [observable](/docs/actors/#fromobservable)。
+
+## 提供實作
+
+狀態機實作是指執行與狀態機邏輯（狀態和移轉）無直接相關的程式碼片段。包括以下：
+
+- [行動（action）](actions.mdx)是觸發即忘（fire-and-forget）的副作用。
+- [演員](actors.mdx)是可以與狀態機演員通訊的實體。
+- [狀態守衛](guards.mdx)決定狀態是否移轉的條件。
+- [延遲](delayed-transitions.mdx)定義狀態移轉或事件觸發前的延遲時間。
+
+在 `setup({...})` 函式中定義所有建立狀態機的實作內容，然後可以使用 JSON 序列化（JSON-serializable 字串）或物件來參照這些實作，例如：`{ type: 'doSomething' }`。
+
+```ts
+import { setup } from 'xstate';
+
+const feedbackMachine = setup({
+  // Default implementations
+  actions: {
+    doSomething: () => {
+      console.log('Doing something!');
+    },
+  },
+  actors: {
+    /* ... */
+  },
+  guards: {
+    /* ... */
+  },
+  delays: {
+    /* ... */
+  },
+}).createMachine({
+  entry: { type: 'doSomething' },
+  // ... rest of machine config
+});
+
+const feedbackActor = createActor(feedbackMachine);
+
+feedbackActor.start();
+// logs 'Doing something!'
+```
+
+您可以透過 `machine.provide(...)`來覆寫預設的實作。此函式會以相同的設定建立新的狀態機，但會使用所提供的實作：
+
+```ts
+const customFeedbackMachine = feedbackMachine.provide({
+  actions: {
+    doSomething: () => {
+      console.log('Doing something else!');
+    },
+  },
+});
+
+const feedbackActor = createActor(customFeedbackMachine);
+
+feedbackActor.start();
+// logs 'Doing something else!'
+```
+
+## 受制型別的行為輔助工具（Type-bound action helpers）
+
+_XState 5.22.0 以後版本_
+
+`setup()` 函式提供了關於定義脈絡、事件、演員、條件守衛、延遲和觸發型別之受制型別行為輔助工具。這些輔助工具所建立的行為，將會綁定至 `setup()` 中相對應的定義型別，並且可以直接應用於由該 setup 函式所產生的狀態機。
+
+### 建立自訂行動
+
+使用 `createAction(fn)` 建立受型別約束的自訂行動：
+
+```ts
+import { setup } from 'xstate';
+
+const machineSetup = setup({
+  types: {
+    context: {} as { count: number; name: string },
+    events: {} as { type: 'increment'; value: number } | { type: 'reset' },
+  },
+});
+
+// Create a custom action with full type safety
+// Can be defined in any file that imports the machineSetup
+// highlight-start
+const logCount = machineSetup.createAction(({ context, event }) => {
+  // context and event are fully typed
+  console.log(`Count: ${context.count}, Event: ${event.type}`);
+});
+// highlight-end
+
+const machine = machineSetup.createMachine({
+  context: { count: 0, name: 'Counter' },
+  initial: 'counting',
+  states: {
+    counting: {
+      entry: logCount, // Fully typed action
+      on: {
+        increment: {
+          actions: logCount,
+        },
+      },
+    },
+  },
+});
+```
+
+setup 函式提供所有制約型別版本的內建行為：
+
+- `setup(…).assign(…)`
+- `setup(…).raise(…)`
+- `setup(…).emit(…)`
+- `setup(…).sendTo(…)`
+- `setup(…).log(…)`
+- `setup(…).cancel(…)`
+- `setup(…).spawnChild(…)`
+- `setup(…).stopChild(…)`
+- `setup(…).enqueueActions(…)`
+
+這些輔助物件是完全依您設定的型別來分類，不需要包裝物件：
+
+```ts
+import { setup } from 'xstate';
+
+const machineSetup = setup({
+  types: {
+    context: {} as { count: number; items: string[] },
+    events: {} as { type: 'increment' } | { type: 'addItem'; item: string },
+    emitted: {} as { type: 'COUNT_CHANGED'; count: number },
+    // ...
+  },
+});
+
+// highlight-start
+// Type-bound assign - context is fully typed
+const incrementCount = machineSetup.assign({
+  count: ({ context }) => context.count + 1,
+});
+
+const addItem = machineSetup.assign({
+  items: ({ context, event }) => [...context.items, event.item],
+});
+
+// Type-bound raise - events are fully typed
+const raiseIncrement = machineSetup.raise({ type: 'increment' });
+
+// Type-bound emit - emitted types are fully typed
+const emitCountChanged = machineSetup.emit(({ context }) => ({
+  type: 'COUNT_CHANGED',
+  count: context.count,
+}));
+
+// Type-bound sendTo - actors are fully typed
+const sendToLogger = machineSetup.sendTo('logger', ({ context }) => ({
+  type: 'LOG',
+  message: `Count is ${context.count}`,
+}));
+
+// Type-bound log - context and events are fully typed
+const logContext = machineSetup.log(
+  ({ context }) => `Context: ${JSON.stringify(context)}`,
+);
+
+// Type-bound cancel - actors are fully typed
+const cancelLogger = machineSetup.cancel('logger');
+
+// Type-bound stopChild - actors are fully typed
+const stopLogger = machineSetup.stopChild('logger');
+
+// Type-bound spawnChild - actors are fully typed
+const spawnLogger = machineSetup.spawnChild('logger', {
+  input: ({ context }) => ({ initialCount: context.count }),
+});
+
+// Type-bound enqueueActions - all helpers are available with full typing
+const batchActions = machineSetup.enqueueActions(({ enqueue, check }) => {
+  enqueue(incrementCount);
+  enqueue(logContext);
+
+  if (check(() => true)) {
+    enqueue(emitCountChanged);
+  }
+});
+// highlight-end
+
+const machine = machineSetup.createMachine({
+  context: { count: 0, items: [] },
+  initial: 'active',
+  states: {
+    active: {
+      entry: [incrementCount, logContext, emitCountChanged],
+      on: {
+        increment: {
+          actions: [incrementCount, batchActions],
+        },
+        addItem: {
+          actions: addItem,
+        },
+      },
+    },
+  },
+});
+```
+
+## 狀態移轉
+
+_XState 5.19.0 以後版本_
+
+當建立狀態機演員時，下個狀態是由狀態機的當前狀態和發送給演員的事件來決定的。然而您也可以純粹使用 `transition(machine, state, event)` 和 `initialTransition(machine)` 函式，從目前的狀態和事件決定下一個**狀態**和**行動**：
+
+```ts
+// highlight-next-line
+import { createMachine, initialTransition, transition } from 'xstate';
+
+const machine = createMachine({
+  initial: 'pending',
+  states: {
+    pending: {
+      on: {
+        start: { target: 'started' },
+      },
+    },
+    started: {
+      entry: 'doSomething',
+    },
+  },
+});
+
+// highlight-next-line
+const [initialState, initialActions] = initialTransition(machine);
+
+console.log(initialState.value);
+// logs 'pending'
+
+console.log(initialActions);
+// logs []
+
+// highlight-next-line
+const [nextState, actions] = transition(machine, initialState, {
+  type: 'start',
+});
+
+console.log(nextState.value);
+// logs 'started'
+
+console.log(actions);
+// logs [{ type: 'doSomething', … }]
+```
+
+## 定義下個狀態
+
+:::warning
+建議使用 `initialTransition(...)` 和 `transition(...)` 函式來取代`getNextSnapshot(...)` 和 `getInitialSnapshot(...)`，因為它們將來會被淘汰。
+:::
+
+當建立狀態機演員時，下個狀態是由當前狀態和傳送給演員的事件所決定的。若要在演員之外決定下一個狀態，可以使用 `getNextSnapshot(...)` 函式：
+
+```ts
+import { getNextSnapshot } from 'xstate';
+import { feedbackMachine } from './feedbackMachine';
+
+const nextSnapshot = getNextSnapshot(
+  feedbackMachine,
+  feedbackMachine.resolveState({ value: 'question' }),
+  { type: 'feedback.good' },
+);
+
+console.log(nextSnapshot.value);
+// logs 'thanks'
+```
+
+也可以使用 `getInitialSnapshot(...)` 函式來確定機狀態機的初始狀態：
+
+```ts
+import { getInitialSnapshot } from 'xstate';
+import { feedbackMachine } from './feedbackMachine';
+
+const initialSnapshot = getInitialSnapshot(
+  feedbackMachine,
+  // optional input
+  { defaultRating: 3 },
+);
+
+console.log(initialSnapshot.value);
+// logs 'question'
+```
+
+## 定義型別
+
+可以使用 `.types` 屬性在狀態機 setup 內指定 TypeScript 型別：
+
+```ts
+import { setup } from 'xstate';
+
+const feedbackMachine = setup({
+  types: {
+    context: {} as { feedback: string },
+    events: {} as { type: 'feedback.good' } | { type: 'feedback.bad' },
+  },
+  actions: {
+    logTelemetry: () => {
+      // TODO: implement
+    },
+  },
+}).createMachine({
+  // ...
+});
+```
+
+這些定義的型別會在整個狀態機配置以及所建立的狀態機和演員中做型別推論，因此像是 `machine.transition(...)` 和 `actor.send(...)` 之類的方法將會是型別制約的保障。
+
+## 模組化狀態
+
+_XState 5.21.0 版本以後_
+
+可使用 setup API 中的 `.createStateConfig(...)` 來建立模組化、可複用的狀態配置。此方法包括幾個好處，例如：模組化、強型別和更好的組織架構。
+
+### 基本用法
+
+```ts
+import { setup } from 'xstate';
+
+const lightMachineSetup = setup({
+  // ...
+});
+
+// highlight-start
+// Create individual state configurations
+const green = lightMachineSetup.createStateConfig({
+  entry: { type: 'startTimer' },
+  on: {
+    TIMER: { target: 'yellow' },
+    PEDESTRIAN: { target: 'yellow' },
+    EMERGENCY: { target: 'red' },
+  },
+});
+
+const yellow = lightMachineSetup.createStateConfig({
+  entry: { type: 'startTimer' },
+  on: {
+    TIMER: { target: 'red' },
+    EMERGENCY: { target: 'red' },
+  },
+});
+
+const red = lightMachineSetup.createStateConfig({
+  entry: { type: 'startTimer' },
+  on: {
+    TIMER: { target: 'green' },
+    EMERGENCY: { target: 'green' },
+  },
+});
+// highlight-end
+
+// Compose the machine using the modular state configs
+const trafficLightMachine = lightMachineSetup.createMachine({
+  initial: 'green',
+  states: {
+    green,
+    yellow,
+    red,
+  },
+});
+```
+
+所有用 `.createStateConfig(...)` 建立的狀態配置都有 setup 中指定的完整型別。`.createStateConfig(...)` 方法對於非常龐大、複雜度高的狀態機尤其好用，在這樣的狀態機中，您想要將邏輯分解成可管理的片段，同時在整個過程中維持強型別。
+
+## 狀態機與 TypeScript
+
+:::typescript
+
+\*\*XState v5 需要 TypeScript 版本 5.0 或以上。
+
+為達到最佳效果，請使用最新的 TypeScript 版本。[閱讀更多關於 XState 與 TypeScript 的資訊](typecript.mdx)
+
+:::
+
+為狀態機提供強型別的最佳實踐是使用 `setup(...)` 函式和/或 `.types` 屬性。
+
+```ts
+import { setup, fromPromise } from 'xstate';
+
+const someAction = () => {
+  /* ... */
+};
+
+const someGuard = ({ context }) => context.count <= 10;
+
+const someActor = fromPromise(async () => {
+  // ...
+  return 42;
+});
+
+const feedbackMachine = setup({
+  types: {
+    context: {} as { count: number },
+    events: {} as { type: 'increment' } | { type: 'decrement' },
+  },
+  actions: {
+    someAction,
+  },
+  guards: {
+    someGuard,
+  },
+  actors: {
+    someActor,
+  },
+}).createMachine({
+  initial: 'counting',
+  states: {
+    counting: {
+      entry: { type: 'someAction' }, // strongly-typed
+      invoke: {
+        src: 'someActor', // strongly-typed
+        onDone: {
+          actions: ({ event }) => {
+            event.output; // strongly-typed as number
+          },
+        },
+      },
+      on: {
+        increment: {
+          guard: { type: 'someGuard' }, // strongly-typed
+          actions: assign({
+            count: ({ context }) => context.count + 1,
+          }),
+        },
+      },
+    },
+  },
+});
+```
+
+## 狀態機速查表
+
+使用以下的 XState 狀態機速查表來快速上手。
+
+### 速查：建立狀態機
+
+```ts
+import { createMachine } from 'xstate';
+
+const machine = createMachine({
+  initial: 'start',
+  states: {
+    start: {},
+    // ...
+  },
+});
+```
+
+### 速查：定義狀態機的實作
+
+```ts
+import { setup } from 'xstate';
+
+const machine = setup({
+  actions: {
+    someAction: () => {
+      /* ... */
+    },
+  },
+  guards: {
+    someGuard: ({ context }) => context.count <= 10,
+  },
+  actors: {
+    someActor: fromPromise(async () => {
+      /* ... */
+    }),
+  },
+  delays: {
+    someDelay: () => 1000,
+  },
+}).createMachine({
+  // ... Rest of machine config
+});
+```
+
+### 速查：型別制約的行動輔助工具
+
+```ts
+import { setup } from 'xstate';
+
+const machineSetup = setup({
+  types: {
+    context: {} as { count: number },
+    events: {} as { type: 'increment' } | { type: 'reset' },
+    emitted: {} as { type: 'COUNT_CHANGED' },
+  },
+});
+
+// Custom action
+const customAction = machineSetup.createAction(({ context, event }) => {
+  console.log(context.count, event.type);
+});
+
+// Type-bound built-ins
+const increment = machineSetup.assign({
+  count: ({ context }) => context.count + 1,
+});
+const raiseReset = machineSetup.raise({ type: 'reset' });
+const emitEvent = machineSetup.emit({ type: 'COUNT_CHANGED' });
+const logCount = machineSetup.log(({ context }) => `Count: ${context.count}`);
+
+const machine = machineSetup.createMachine({
+  context: { count: 0 },
+  entry: [customAction, increment, emitEvent],
+  on: {
+    increment: { actions: increment },
+    reset: { actions: raiseReset },
+  },
+});
+```
+
+### 速查：提供實作
+
+```ts
+import { createMachine } from 'xstate';
+import { someMachine } from './someMachine';
+
+const machineWithImpls = someMachine.provide({
+  actions: {
+    /* ... */
+  },
+  actors: {
+    /* ... */
+  },
+  guards: {
+    /* ... */
+  },
+  delays: {
+    /* ... */
+  },
+});
+```
