@@ -1,0 +1,237 @@
+---
+title: '狀態機設定'
+---
+
+在 XState 版本 5 中，現在可以使用 `setup({ ... })` 函式來為狀態機設定型別和來源，有以下好處：
+
+- 提供強型別和命名來源的樣板減少了
+- 更堅實的狀態機邏輯，因為命名來源保證存在
+- 針對行動、演員、條件守衛、延遲、脈絡、事件等提供更好的型別推論。
+- 對於演員的強型別快照與完成事件
+- 強型別的狀態值
+- 來源邏輯的複用性
+
+使用範例：
+
+```ts
+import { setup, assign } from 'xstate';
+
+const machine = setup({
+  types: {
+    context: {} as { count: number },
+    events: {} as { type: 'inc' } | { type: 'dec' },
+  },
+  actions: {
+    increment: assign({
+      count: ({ context }) => context.count + 1,
+    }),
+    decrement: assign({
+      count: ({ context }) => context.count - 1,
+    }),
+  },
+}).createMachine({
+  context: { count: 0 },
+  on: {
+    inc: { actions: 'increment' },
+    dec: { actions: 'decrement' },
+  },
+});
+```
+
+:::warning
+
+確保使用最新版的 TypeScript（版本 5.0 或以上）。更多資訊請參閱 [搭配 TypeScript 使用 XState](./typescript.mdx) 的說明文件。
+
+:::
+
+## 定義型別
+
+狀態機的型別應該定義在 `setup({ types })` 中的 `types` 屬性。您可以在此設定狀態機的型別，包括：
+
+- `context` 的型別定義
+- `events` 的型別定義，包括其酬載（payload）
+- `input` 的型別定義
+- `actions` 的型別定義，包含其參數（`params`）
+- `guards` 的型別定義，包含其參數（`params`）
+- `actors` 的型別定義
+
+## 從 `createMachine` 移轉過來
+
+從純粹的 `createMachine({ ... })` 轉換到 `setup({ ... }).createMachine({ ... })` 來建立狀態機十分簡單。
+
+1. 從`'xstate'` 引入 `setup` 來取代 `createMachine`。
+2. 將 `types` 從 `createMachine(...)` 移到 `setup(...)`。
+3. 將 `createMachine(config, sources)` 的第二個參數中的行動、演員、狀態守衛等來源移至 `setup({ ... })`
+
+```ts
+import {
+// createMachine
+  setup
+} from 'xstate';
+
+const machine =
+  setup({
+    types: { ... },
+    actions: { ... },
+    guards: { ... }
+  })
+  .createMachine({
+    // types: { ... }
+  }, /* { actions, guards, ... } */);
+```
+
+## 擴充設定
+
+_ XState 版本 5.24.0 以上_
+
+extend()` 方法允許透過擴充行動、條件守衛和延遲來逐步建立設定。這樣就可以實現以前無法實現的完全強型別的模式。
+
+### 為何使用 `.extend()`？
+
+在 `.extend()` 之前，所有的行動、條件守衛和延遲都必須在單一的 `setup()` 呼叫中定義。有了 `.extend()`，就可以：
+
+- **從多個來源組合狀態機的設定**：建立可針對不同網域或模組進行擴充的基礎設定
+- **在延伸來源中參考基本來源**：在具有完整強型別的延伸來源中使用基本行動、條件守衛和延遲
+- ** 串連式擴充**：以漸進的方式建立高複雜度的狀態機設定，同時在整個過程中維持強型別
+
+### 基本用法
+
+透過呼叫 `.extend()` 使用額外的行動、條件守衛或延遲來擴充狀態機設定：
+
+```ts
+import { setup, enqueueActions } from 'xstate';
+
+const baseSetup = setup({
+  actions: {
+    doSomething: () => {
+      console.log('Doing something');
+    },
+  },
+  guards: {
+    truthy: () => true,
+  },
+});
+
+// highlight-start
+const extendedSetup = baseSetup.extend({
+  actions: {
+    doSomethingElse: () => {
+      console.log('Doing something else');
+    },
+  },
+  guards: {
+    falsy: () => false,
+  },
+});
+// highlight-end
+
+const machine = extendedSetup.createMachine({
+  entry: [{ type: 'doSomething' }, { type: 'doSomethingElse' }], // ✅ Both actions are available
+  on: {
+    EV: {
+      guard: { type: 'truthy' }, // ✅ Base guard is available
+      actions: { type: 'doSomethingElse' },
+    },
+  },
+});
+```
+
+### 在延伸來源中引用基本來源
+
+`.extend()` 的強大功能之一在於自從基本來源中擴充的動作、條件守衛和延遲，並且具備強型別：
+
+```ts
+import { setup, enqueueActions, not, and, or, assign } from 'xstate';
+
+const baseSetup = setup({
+  types: {
+    context: {} as { count: number },
+  },
+  actions: {
+    increment: assign({
+      count: ({ context }) => context.count + 1,
+    }),
+  },
+  guards: {
+    truthy: () => true,
+    isPositive: ({ context }) => context.count > 0,
+  },
+});
+
+const extendedSetup = baseSetup.extend({
+  guards: {
+    // ✅ Can reference base guard with not()
+    falsy: not('truthy'),
+
+    // ✅ Can combine base guards with and()
+    isPositiveAndTruthy: and(['isPositive', 'truthy']),
+
+    // ❌ TypeScript error: 'nonexistent' doesn't exist
+    // nonexistent: not('nonexistent'),
+  },
+  actions: {
+    // ✅ Can reference base actions in enqueueActions
+    incrementAndLog: enqueueActions(({ enqueue, check }) => {
+      enqueue('increment'); // ✅ Base action is available
+
+      if (check('isPositive')) {
+        // ✅ Extended guard is available
+        enqueue.raise({ type: 'POSITIVE' });
+      }
+
+      // ❌ TypeScript error: 'nonexistent' doesn't exist
+      // enqueue('nonexistent');
+    }),
+  },
+});
+
+const machine = extendedSetup.createMachine({
+  on: {
+    EV: {
+      guard: 'isPositiveAndTruthy', // ✅ Extended guard is available
+      actions: 'incrementAndLog',
+    },
+  },
+});
+```
+
+延遲也可以在引用及擴充至行動中：
+
+```ts
+import { setup, raise } from 'xstate';
+
+const baseSetup = setup({
+  delays: {
+    short: 10,
+  },
+});
+
+const extendedSetup = baseSetup.extend({
+  delays: {
+    medium: 100,
+  },
+});
+
+const machine = extendedSetup.createMachine({
+  initial: 'a',
+  states: {
+    a: {
+      entry: [
+        raise({ type: 'GO' }, { delay: 'short' }), // ✅ Base delay
+        raise({ type: 'GO' }, { delay: 'medium' }), // ✅ Extended delay
+        // ❌ TypeScript error: 'long' doesn't exist
+        // raise({ type: 'GO' }, { delay: 'long' }),
+      ],
+      on: {
+        GO: 'b',
+      },
+    },
+    b: {
+      after: {
+        medium: 'c', // ✅ Extended delay available in after
+      },
+    },
+    c: {},
+  },
+});
+```
